@@ -1,0 +1,48 @@
+{
+  "name": "buildsure",
+  "description": "Install + build a project (or a folder of projects) only when sources changed. Auto-detects pnpm/npm/yarn/bun.",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "buildsure": "bin/buildsure.js"
+  },
+  "files": [
+    "index.js",
+    "lib/",
+    "bin/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test test/**/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "author": "Martin Clasen",
+  "license": "MIT",
+  "keywords": [
+    "build",
+    "install",
+    "incremental",
+    "monorepo",
+    "pnpm",
+    "npm",
+    "automatic",
+    "yarn",
+    "bun",
+    "mtime",
+    "ensure",
+    "buildsure",
+    "clasen"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/clasen/BuildSure.git"
+  },
+  "bugs": {
+    "url": "https://github.com/clasen/BuildSure/issues"
+  },
+  "homepage": "https://github.com/clasen/BuildSure#readme"
+}
