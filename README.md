@@ -1,4 +1,4 @@
-# buildsure
+# Buildsure
 
 Install + build a Node project (or a folder of projects) **only when sources actually changed**. Auto-detects `pnpm` / `npm` / `yarn` / `bun` per project, with configurable fallback.
 
@@ -13,25 +13,6 @@ Zero dependencies. ESM only.
 ```bash
 npm install buildsure
 ```
-
-Or use directly without installing:
-
-```bash
-npx buildsure ./www
-```
-
-## CLI
-
-```bash
-buildsure [path]                          # Build a project, or every subproject in [path]
-buildsure --check [path]                  # Show status without executing (JSON)
-buildsure --pm <auto|pnpm|npm|yarn|bun>   # Force package manager (default: auto)
-buildsure --script <name>                 # Script to run (default: build)
-buildsure --quiet                         # Suppress per-project log lines
-buildsure --help
-```
-
-If `[path]` contains a `package.json`, it builds that project. Otherwise it iterates immediate subdirectories that have `package.json` + a `build` script.
 
 ## Programmatic API
 
@@ -57,6 +38,26 @@ const result = await bs.ensureAll('./www');
 const status = bs.check('./my-app');
 // → { exists, hasBuildScript, needsInstall, needsBuild, packageManager }
 ```
+
+
+Or use directly without installing:
+
+```bash
+npx buildsure ./www
+```
+
+## CLI
+
+```bash
+buildsure [path]                          # Build a project, or every subproject in [path]
+buildsure --check [path]                  # Show status without executing (JSON)
+buildsure --pm <auto|pnpm|npm|yarn|bun>   # Force package manager (default: auto)
+buildsure --script <name>                 # Script to run (default: build)
+buildsure --quiet                         # Suppress per-project log lines
+buildsure --help
+```
+
+If `[path]` contains a `package.json`, it builds that project. Otherwise it iterates immediate subdirectories that have `package.json` + a `build` script.
 
 ## How package manager is resolved
 

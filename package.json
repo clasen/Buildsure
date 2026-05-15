@@ -1,7 +1,7 @@
 {
   "name": "buildsure",
-  "description": "Install + build a project (or a folder of projects) only when sources changed. Auto-detects pnpm/npm/yarn/bun.",
-  "version": "0.1.0",
+  "description": "Install + build your projects only when sources changed. Auto-detects pnpm/npm/yarn/bun.",
+  "version": "0.2.0",
   "type": "module",
   "main": "index.js",
   "bin": {
