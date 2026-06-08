@@ -10,13 +10,14 @@ Usage:
   buildsure --check [path]               Show status without executing
   buildsure --pm <auto|pnpm|npm|yarn|bun>   Force package manager (default: auto)
   buildsure --script <name>              Script to run (default: build)
-  buildsure --quiet                      Suppress per-project log lines
+  buildsure --log-level <debug|info|warn|error|none>   Per-project log level (default: info)
+  buildsure --quiet                      Suppress per-project log lines (same as --log-level none)
   buildsure --help                       This help
 
 Resolution priority for --pm auto: forced > lockfile > preferred list (pnpm, npm).`;
 
 function parseArgs(argv) {
-    const args = { _: [], check: false, pm: 'auto', script: 'build', quiet: false };
+    const args = { _: [], check: false, pm: 'auto', script: 'build', quiet: false, logLevel: undefined };
     for (let i = 0; i < argv.length; i++) {
         const a = argv[i];
         switch (a) {
@@ -27,6 +28,7 @@ function parseArgs(argv) {
             case '--pm': args.pm = argv[++i]; break;
             case '-s':
             case '--script': args.script = argv[++i]; break;
+            case '--log-level': args.logLevel = argv[++i]; break;
             case '-q':
             case '--quiet': args.quiet = true; break;
             default: args._.push(a);
@@ -62,6 +64,7 @@ if (!existsSync(target)) {
 const bs = new BuildSure({
     packageManager: args.pm,
     buildScript: args.script,
+    logLevel: args.quiet ? 'none' : args.logLevel,
     verbose: !args.quiet,
 });
 

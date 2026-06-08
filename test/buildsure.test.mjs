@@ -160,3 +160,10 @@ test('onLog and onProgress hooks fire', async () => {
         assert.ok(events.some(e => e.phase === 'build' && e.status === 'done'));
     } finally { cleanup(tmp); }
 });
+
+test('constructor: validates logLevel', () => {
+    for (const logLevel of ['debug', 'info', 'warn', 'error', 'none']) {
+        assert.doesNotThrow(() => makeBuildSure({ logLevel }));
+    }
+    assert.throws(() => makeBuildSure({ logLevel: 'silent' }), /Unsupported logLevel/);
+});

@@ -1,10 +1,30 @@
 import { existsSync } from 'fs';
 import { basename } from 'path';
+import LemonLog from 'lemonlog';
 import { Freshness } from './lib/Freshness.js';
 import { PackageManager } from './lib/PackageManager.js';
 import { ProjectScanner } from './lib/ProjectScanner.js';
 
 const noop = () => {};
+const LOG_LEVELS = ['debug', 'info', 'warn', 'error', 'none'];
+
+function resolveLogLevel({ logLevel, verbose }) {
+    const resolved = logLevel ?? (verbose ? 'info' : 'none');
+    if (!LOG_LEVELS.includes(resolved)) {
+        throw new Error(`Unsupported logLevel '${resolved}'. Use one of: ${LOG_LEVELS.join(', ')}`);
+    }
+    return resolved;
+}
+
+function createDefaultLogSink(logLevel) {
+    if (logLevel === 'none') return noop;
+
+    const log = new LemonLog('buildsure', logLevel);
+    return (msg) => {
+        if (msg.startsWith('[error]')) log.error(msg);
+        else log.info(msg);
+    };
+}
 
 export class BuildSure {
     constructor(options = {}) {
@@ -14,7 +34,8 @@ export class BuildSure {
         this.pm = options.pm ?? new PackageManager(options);
 
         const verbose = options.verbose ?? false;
-        this.onLog = options.onLog ?? (verbose ? (msg) => console.log(msg) : noop);
+        const logLevel = resolveLogLevel({ logLevel: options.logLevel, verbose });
+        this.onLog = options.onLog ?? createDefaultLogSink(logLevel);
         this.onProgress = options.onProgress ?? noop;
     }
 

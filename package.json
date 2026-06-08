@@ -1,7 +1,7 @@
 {
   "name": "buildsure",
   "description": "Install + build your projects only when sources changed. Auto-detects pnpm/npm/yarn/bun.",
-  "version": "0.2.0",
+  "version": "0.4.0",
   "type": "module",
   "main": "index.js",
   "bin": {
@@ -44,5 +44,9 @@
   "bugs": {
     "url": "https://github.com/clasen/BuildSure/issues"
   },
-  "homepage": "https://github.com/clasen/BuildSure#readme"
+  "homepage": "https://github.com/clasen/BuildSure#readme",
+  "dependencies": {
+    "lemonlog": "^1.2.2"
+  },
+  "packageManager": "pnpm@11.5.2"
 }
