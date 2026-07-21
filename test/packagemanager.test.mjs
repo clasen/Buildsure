@@ -6,9 +6,11 @@ import { makeTmp, cleanup, writeFile } from './_fixtures.mjs';
 function fakePM(opts = {}) {
     const calls = [];
     const probe = opts.probe ?? (() => true);
+    const capture = opts.capture ?? (() => JSON.stringify({ allowScripts: [] }));
     const pm = new PackageManager({
         ...opts,
         probe,
+        capture,
         exec: (cmd, args, cwd) => { calls.push({ cmd, args, cwd }); },
     });
     return { pm, calls };
@@ -111,13 +113,50 @@ test('constructor: rejects unknown packageManager', () => {
     assert.throws(() => new PackageManager({ packageManager: 'cargo' }), /Unsupported/);
 });
 
-test('install with npm: passes installArgs (--include=dev)', () => {
+test('install with npm: includes dev dependencies and checks install-script policy', () => {
     const tmp = makeTmp();
     try {
         writeFile(tmp, 'package-lock.json', '{}');
         const { pm, calls } = fakePM();
         pm.install(tmp);
         assert.deepEqual(calls[0], { cmd: 'npm', args: ['install', '--include=dev'], cwd: tmp });
+    } finally { cleanup(tmp); }
+});
+
+test('install with npm: fails before build when install scripts need review', () => {
+    const tmp = makeTmp();
+    try {
+        writeFile(tmp, 'package-lock.json', '{}');
+        const { pm } = fakePM({
+            capture: () => JSON.stringify({
+                allowScripts: [{
+                    name: '@ffprobe-installer/linux-x64',
+                    changes: [{
+                        key: '@ffprobe-installer/linux-x64@5.2.0',
+                        change: 'pending',
+                    }],
+                }],
+            }),
+        });
+
+        assert.throws(
+            () => pm.install(tmp),
+            /@ffprobe-installer\/linux-x64@5\.2\.0.*npm install-scripts approve/s,
+        );
+    } finally { cleanup(tmp); }
+});
+
+test('install with npm: supports npm versions without install-scripts', () => {
+    const tmp = makeTmp();
+    try {
+        writeFile(tmp, 'package-lock.json', '{}');
+        const error = new Error('Command failed');
+        error.stderr = Buffer.from('Unknown command: "install-scripts"');
+        const { pm } = fakePM({
+            capture: () => { throw error; },
+        });
+
+        assert.equal(pm.install(tmp), 'npm');
     } finally { cleanup(tmp); }
 });
 

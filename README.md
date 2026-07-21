@@ -93,6 +93,29 @@ new BuildSure({
 
 When a build is needed, `buildsure` always runs `install` first, even if deps look fresh. This guards against `NODE_ENV=production` having previously stripped dev dependencies on `npm install`.
 
+### npm install-script approvals
+
+With npm versions that support `allowScripts`, Buildsure checks
+`npm install-scripts ls` after installing. npm 11 warns about unreviewed
+scripts, while npm 12 blocks them by default; Buildsure treats either result as
+a failed install and never continues to the build until the project records an
+explicit decision.
+
+Review the pending scripts and record an explicit decision in the project's
+`package.json`, then rerun Buildsure:
+
+```bash
+npm install-scripts ls
+npm install-scripts approve <package>
+npm rebuild
+# or
+npm install-scripts deny <package>
+```
+
+`npm rebuild` runs a newly approved script that npm may have skipped during the
+preceding install. Approvals are pinned to the installed package version by
+default. Buildsure does not approve or deny packages automatically.
+
 ## Hooks
 
 ```js

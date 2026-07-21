@@ -12,6 +12,7 @@ function makeBuildSure(opts = {}) {
         preferred: ['npm'],
         probe: () => true,
         exec: (cmd, args, cwd) => { calls.push({ cmd, args, cwd }); },
+        capture: () => JSON.stringify({ allowScripts: [] }),
     });
     const bs = new BuildSure({ pm, ...opts });
     return { bs, calls };
@@ -115,6 +116,7 @@ test('ensure: returns failed when build throws', async () => {
             preferred: ['npm'],
             probe: () => true,
             exec: () => { if (++n === 2) throw new Error('build boom'); },
+            capture: () => JSON.stringify({ allowScripts: [] }),
         });
         const bs = new BuildSure({ pm });
         const r = await bs.ensure(tmp);
@@ -148,6 +150,7 @@ test('onLog and onProgress hooks fire', async () => {
         const events = [];
         const pm = new PackageManager({
             preferred: ['npm'], probe: () => true, exec: () => {},
+            capture: () => JSON.stringify({ allowScripts: [] }),
         });
         const bs = new BuildSure({
             pm,
