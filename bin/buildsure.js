@@ -9,6 +9,7 @@ Usage:
   buildsure [path]                       Ensure a project (or every subproject if [path] has no package.json)
   buildsure --check [path]               Show status without executing
   buildsure --pm <auto|pnpm|npm|yarn|bun>   Force package manager (default: auto)
+  buildsure --pm-path <absolute-path>     Package manager executable (requires --pm)
   buildsure --script <name>              Script to run (default: build)
   buildsure --log-level <debug|info|warn|error|none>   Per-project log level (default: info)
   buildsure --quiet                      Suppress per-project log lines (same as --log-level none)
@@ -26,6 +27,10 @@ function parseArgs(argv) {
             case '-c':
             case '--check': args.check = true; break;
             case '--pm': args.pm = argv[++i]; break;
+            case '--pm-path':
+                if (!argv[i + 1] || argv[i + 1].startsWith('--')) throw new Error('--pm-path requires an absolute path');
+                args.pmPath = argv[++i];
+                break;
             case '-s':
             case '--script': args.script = argv[++i]; break;
             case '--log-level': args.logLevel = argv[++i]; break;
@@ -63,6 +68,7 @@ if (!existsSync(target)) {
 
 const bs = new BuildSure({
     packageManager: args.pm,
+    packageManagerPath: args.pmPath,
     buildScript: args.script,
     logLevel: args.quiet ? 'none' : args.logLevel,
     verbose: !args.quiet,

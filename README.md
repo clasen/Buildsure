@@ -52,6 +52,7 @@ npx buildsure ./www
 buildsure [path]                          # Build a project, or every subproject in [path]
 buildsure --check [path]                  # Show status without executing (JSON)
 buildsure --pm <auto|pnpm|npm|yarn|bun>   # Force package manager (default: auto)
+buildsure --pm pnpm --pm-path /opt/pnpm/pnpm ./my-app  # Use an absolute executable path
 buildsure --script <name>                 # Script to run (default: build)
 buildsure --quiet                         # Suppress per-project log lines
 buildsure --help
@@ -63,9 +64,32 @@ If `[path]` contains a `package.json`, it builds that project. Otherwise it iter
 
 Priority (highest first):
 
-1. **Forced** — `packageManager: 'pnpm'` overrides everything (throws if not installed).
+1. **Forced** — `packageManager: 'pnpm'` overrides everything (throws if unavailable).
 2. **Lockfile** — `pnpm-lock.yaml` → `pnpm`, `yarn.lock` → `yarn`, `bun.lockb` → `bun`, `package-lock.json` → `npm`.
 3. **Preferred list** — first available in `preferred` (default `['pnpm', 'npm']`).
+
+Executables are resolved to absolute paths and reused for the version check,
+install, and build. Buildsure searches `PATH`, then the directory of the running
+Node executable. Child processes also receive that Node directory in `PATH`, so
+Node-based package managers can run when PM2 has a restricted environment.
+
+For an executable in another location, configure its absolute path explicitly:
+
+```js
+new BuildSure({
+    packageManager: 'pnpm',
+    packageManagerPath: '/opt/pnpm/pnpm',
+});
+```
+
+`packageManagerPath` requires an explicit `packageManager`; it is not used with
+`auto`. An invalid explicit path is an error and does not select another executable.
+Missing executables are distinguished from permission errors, failed version
+checks, and commands terminated by a signal. Execution errors include the
+executable, working directory, and code or signal, and preserve the original
+error in `cause`. An installed but broken manager stops resolution instead of
+silently selecting a different manager. Builds still run through the package
+manager's project scripts.
 
 ## How "needs build" is decided
 
